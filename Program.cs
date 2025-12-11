@@ -12,17 +12,25 @@ namespace HttpNewsPAT
     {
         static void Main(string[] args)
         {
-            WebRequest request = WebRequest.Create("");
-            HttpWebResponse = (HttpWebResponse)request.GetResponse();
-            Console.WriteLine(response.StatusDescription);
-            Stream dataStream = response.GetResponseStream();
-            StreamReader reader = new StreamReader(dataStream);
-            string responseFromServer = reader.ReadToEnd();
-            Console.WriteLine(responseFromServer);
-            reader.Close();
-            dataStream.Close();
-            response.Close();
+            WebRequest Request = WebRequest.Create("");
+            
+            using(HttpWebResponse Response = (HttpWebResponse)Request.GetResponse())
+            {
+                Console.WriteLine(Response.StatusDescription);
+
+                using(Stream DataStream = Response.GetResponseStream())
+                {
+                    using(StreamReader Reader = new StreamReader(DataStream))
+                    {
+                        string ResponseFromServer = Reader.ReadToEnd();
+                        Console.WriteLine(ResponseFromServer);
+                    }
+                }
+               
+            }
             Console.Read();
+            
+            
         }
     }
 }
