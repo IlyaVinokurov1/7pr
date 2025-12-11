@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using HtmlAgilityPack;
 
 namespace HttpNewsPAT
 {
@@ -13,26 +14,49 @@ namespace HttpNewsPAT
     {
         static void Main(string[] args)
         {
-            WebRequest Request = WebRequest.Create("");
+            Cookie token = SingIn("user", "user");
+            string Content = GetContent(token);
+            ParsingHtml(Content);
+            //WebRequest Request = WebRequest.Create("");
             
-            using(HttpWebResponse Response = (HttpWebResponse)Request.GetResponse())
-            {
-                Console.WriteLine(Response.StatusDescription);
+            //using(HttpWebResponse Response = (HttpWebResponse)Request.GetResponse())
+            //{
+            //    Console.WriteLine(Response.StatusDescription);
 
-                using(Stream DataStream = Response.GetResponseStream())
-                {
-                    using(StreamReader Reader = new StreamReader(DataStream))
-                    {
-                        string ResponseFromServer = Reader.ReadToEnd();
-                        Console.WriteLine(ResponseFromServer);
-                    }
-                }
+            //    using(Stream DataStream = Response.GetResponseStream())
+            //    {
+            //        using(StreamReader Reader = new StreamReader(DataStream))
+            //        {
+            //            string ResponseFromServer = Reader.ReadToEnd();
+            //            Console.WriteLine(ResponseFromServer);
+            //        }
+            //    }
                
-            }
+            //}
             Console.Read();
         }
-        public static void GetContent(Cookie token)
+
+        public static void ParsingHtml(string htmlCode)
         {
+            var Html = new HtmlDocument();
+            Html.LoadHtml(htmlCode);
+
+            var Document = Html.DocumentNode;
+            IEnumerable<HtmlNode> DivNews = Document.Descendants(0).Where(x => x.HasClass("news"));
+
+            foreach(var DivNew in DivNews)
+            {
+                var src = DivNew.ChildNodes[1].GetAttributes("src", "node");
+                var name = DivNew.ChildNodes[3].InnerHtml;
+                var description = DivNew.ChildNodes[5].InnerHtml;
+
+                Console.WriteLine($"{name} \nИзображение: {src} \nОписание: {description}");
+            }
+        }
+
+        public static string GetContent(Cookie token)
+        {
+            string Content = null;
             string Url = "";
 
             Debug.WriteLine($"Выполняем запрос: {Url}");
@@ -45,9 +69,10 @@ namespace HttpNewsPAT
             {
                 Debug.WriteLine($"Статус выполнения: {Response.StatusCode}");
 
-                string ResponseFromServer = new StreamReader(Response.GetResponseStream()).ReadToEnd();
-                Console.WriteLine(ResponseFromServer);
+                Content = new StreamReader(Response.GetResponseStream()).ReadToEnd();
+                
             }
+            return Content;
         }
         public static void SingIn(string login, string password)
         {
