@@ -31,6 +31,24 @@ namespace HttpNewsPAT
             }
             Console.Read();
         }
+        public static void GetContent(Cookie token)
+        {
+            string Url = "";
+
+            Debug.WriteLine($"Выполняем запрос: {Url}");
+
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(Url);
+            request.CookieContainer = new CookieContainer();
+            request.CookieContainer.Add(token);
+
+            using (HttpWebResponse Response = (HttpWebResponse)request.GetResponse())
+            {
+                Debug.WriteLine($"Статус выполнения: {Response.StatusCode}");
+
+                string ResponseFromServer = new StreamReader(Response.GetResponseStream()).ReadToEnd();
+                Console.WriteLine(ResponseFromServer);
+            }
+        }
         public static void SingIn(string login, string password)
         {
             string Url = "";
